@@ -1,20 +1,60 @@
-from keras.preprocessing import image
-from keras.applications.vgg16 import VGG16, preprocess_input
-from keras.models import Model
 import numpy as np
-
+import torch
+import torchvision
+import os
+from model import PCB, PCB_test
+import torch.nn as nn
+from torchvision import datasets, models, transforms
+from torch.autograd import Variable
 
 class FeatureExtractor:
     def __init__(self):
-        base_model = VGG16(weights='imagenet')
-        self.model = Model(inputs=base_model.input, outputs=base_model.get_layer('fc1').output)
+        #base_model = VGG16(weights='imagenet')
+        #self.model = Model(inputs=base_model.input, outputs=base_model.get_layer('fc1').output)
+        save_path = os.path.join('./model', 'net.pth')
+        model = PCB(575)
+        self.model = PCB_test(model, num_parts=6, cluster_plots=False)
+        self.model.load_state_dict(torch.load(save_path), strict=False)
+        self.avgpool =  nn.AdaptiveAvgPool2d((3, 2))
 
     def extract(self, img):  # img is from PIL.Image.open(path) or keras.preprocessing.image.load_img(path)
-        img = img.resize((224, 224))  # VGG must take a 224x224 img as an input
-        img = img.convert('RGB')  # Make sure img is color
-        x = image.img_to_array(img)  # To np.array. Height x Width x Channel. dtype=float32
-        x = np.expand_dims(x, axis=0)  # (H, W, C)->(1, H, W, C), where the first elem is the number of img
-        x = preprocess_input(x)  # Subtracting avg values for each pixel
+        data_transforms = transforms.Compose([
+                transforms.Resize((256, 128), interpolation=3),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+                ])
+        x = data_transforms(img).unsqueeze_(0)
+        feature = torch.FloatTensor(1, 12288).zero_() # we have six parts
+        for i in range(2):
+            if(i==1):
+                x = self.fliplr(x)
+            x = Variable(x)
+            #if opt.fp16:
+            #    input_img = input_img.half()
+            outputs = self.forward(x)
+            f = outputs.data.cpu().float()
+            feature = feature+f
 
-        feature = self.model.predict(x)[0]  # (1, 4096) -> (4096, )
-        return feature / np.linalg.norm(feature)  # Normalize
+        fnorm = torch.norm(feature, p=2, dim=1, keepdim=True) * np.sqrt(6) 
+        feature = feature.div(fnorm.expand_as(feature))
+        feature = feature.view(feature.size(0), -1).squeeze()
+        return feature
+
+    def fliplr(self,img):
+        '''flip horizontal'''
+        inv_idx = torch.arange(img.size(3)-1,-1,-1).long()  # N x C x H x W
+        img_flip = img.index_select(3,inv_idx)
+        return img_flip
+
+    def forward(self, x):
+        x = self.model.model.conv1(x)
+        x = self.model.model.bn1(x)
+        x = self.model.model.relu(x)
+        x = self.model.model.maxpool(x)
+        x = self.model.model.layer1(x)
+        x = self.model.model.layer2(x)
+        x = self.model.model.layer3(x)
+        x = self.model.model.layer4(x)
+        x = self.avgpool(x)
+        y = x.view(x.size(0), -1)
+        return y
