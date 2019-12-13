@@ -1,10 +1,11 @@
 static/*
 static/feature/*
 static/img/*
-!static/uploaded
+static/uploaded/*
 !.gitkeep
 feature/*
 model/*
+templates/temp.html
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
