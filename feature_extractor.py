@@ -16,10 +16,11 @@ class FeatureExtractor:
         self.model = PCB_test(model, num_parts=6, cluster_plots=False)
         self.model.load_state_dict(torch.load(save_path), strict=False)
         self.avgpool =  nn.AdaptiveAvgPool2d((3, 2))
+        self.model = self.model.eval()
 
     def extract(self, img):  # img is from PIL.Image.open(path) or keras.preprocessing.image.load_img(path)
         data_transforms = transforms.Compose([
-                transforms.Resize((256, 128), interpolation=3),
+                transforms.Resize((384, 192), interpolation=3),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
                 ])
@@ -31,7 +32,8 @@ class FeatureExtractor:
             x = Variable(x)
             #if opt.fp16:
             #    input_img = input_img.half()
-            outputs = self.forward(x)
+            outputs = self.model(x)
+            outputs = outputs.view(x.size(0), -1)
             f = outputs.data.cpu().float()
             feature = feature+f
 
