@@ -112,9 +112,10 @@
             {% if query_path %}
             <img src="{{ query_path }}" width="300px" style="border: 3px solid rgb(0, 0, 0);">
             {% else %}
-            <h4>Select a query image or drag and drop it in the above block.</h4>
+            <h4>Select a query image or drag and drop it in the above area.</h4>
             {% endif %}
             <h2>Results:</h2>
+            {% if scores %}
             {% for score in scores %}
                 {% if score[2] == True %}
                 <figure style="float: left; margin-right: 20px; margin-bottom: 20px;border: 3px solid rgb(0, 204, 0);">
@@ -128,6 +129,9 @@
                 </figure>
                 {% endif %}
             {% endfor %}
+            {% else %}
+            <h4>Upload a query image and click on Submit button to see the results.</h4>
+            {% endif %}
         </div>
     </body>
 </html>
