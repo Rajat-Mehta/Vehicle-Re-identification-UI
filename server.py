@@ -64,7 +64,7 @@ def index():
         # predict index
         index = np.argsort(score)  # from small to large
         index = index[::-1]
-        ids = index[:10] # Top 30 results
+        ids = index[:30] # Top 30 results
         scores = [(round(score[idd],2), img_paths[idd], res[idd]) for idd in ids]
 
         return render_template('index.html',
