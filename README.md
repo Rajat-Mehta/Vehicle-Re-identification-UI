@@ -1,7 +1,10 @@
 # Vehicle Re-Identification or Vehicle Image Retrieval System
 
-![](https://github.com/Rajat-Mehta/Vehicle-Re-identification-UI/blob/master/ui.png)
+## User Interface
+![User Interface](https://github.com/Rajat-Mehta/Vehicle-Re-identification-UI/blob/master/ui.png)
 
+## Working
+![Working](https://github.com/Rajat-Mehta/Vehicle-Re-identification-UI/blob/master/veri_ui.png)
 
 ## Overview
 - This project is a simple content based image retrieval system for vehicle images using PyTorch + Flask. It uses the following two script files for extracting features from vehicle images and comparing different vehicle images based on those features.
