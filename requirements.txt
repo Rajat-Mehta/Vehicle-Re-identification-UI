@@ -3,3 +3,7 @@ h5py
 tensorflow
 Keras
 Flask
+pretrainedmodels
+sklearn
+matplotlib
+flask_uploads
