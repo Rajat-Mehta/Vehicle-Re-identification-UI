@@ -1,4 +1,4 @@
-# Vehicle Re-Identification or Vehicle Image Retrieval System
+# Graphical User Interface for Vehicle Re-Identification or Image Retrieval Systems
 
 ## User Interface
 ![User Interface](https://github.com/Rajat-Mehta/Vehicle-Re-identification-UI/blob/master/ui.png)
